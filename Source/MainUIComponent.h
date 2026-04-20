@@ -64,7 +64,7 @@ private:
     typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
 
-    std::unique_ptr<SliderAttachment> KnobsAttachment[3];
+    std::unique_ptr<SliderAttachment> KnobsAttachment[5];
     std::unique_ptr<ButtonAttachment> buttonsAttachment[2];
 
     int d=1;
@@ -77,6 +77,8 @@ private:
     std::unique_ptr<juce::Slider> Main_slider;
     std::unique_ptr<juce::Slider> HF_knob;
     std::unique_ptr<juce::Slider> LF_Knob;
+    std::unique_ptr<juce::Slider> PeakFreq_knob;
+    std::unique_ptr<juce::Slider> PeakGain_knob;
     std::unique_ptr<juce::Slider> juce__slider;
     std::unique_ptr<juce::ImageButton> juce__imageButton;
     std::unique_ptr<juce::TextButton> Load_button;

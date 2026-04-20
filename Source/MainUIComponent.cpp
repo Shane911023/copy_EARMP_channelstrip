@@ -65,6 +65,22 @@ MainUIComponent::MainUIComponent (EARMP_ChannelstripAudioProcessor& p)
 
     LF_Knob->setBounds (72, 248, 72, 72);
 
+    PeakFreq_knob.reset (new juce::Slider ("EQ"));
+    addAndMakeVisible (PeakFreq_knob.get());
+    PeakFreq_knob->setRange (75.0, 1000.0, 1.0);
+    PeakFreq_knob->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
+    PeakFreq_knob->setTextBoxStyle (juce::Slider::TextBoxAbove, false, 80, 20);
+    PeakFreq_knob->addListener (this);
+    PeakFreq_knob->setBounds (0, 248, 72, 72);
+
+    PeakGain_knob.reset (new juce::Slider ("EQ"));
+    addAndMakeVisible (PeakGain_knob.get());
+    PeakGain_knob->setRange (-12.0, 12.0, 0.1);
+    PeakGain_knob->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
+    PeakGain_knob->setTextBoxStyle (juce::Slider::TextBoxAbove, false, 80, 20);
+    PeakGain_knob->addListener (this);
+    PeakGain_knob->setBounds (72, 168, 72, 72);
+
     juce__slider.reset (new juce::Slider ("EQbutton"));
     addAndMakeVisible (juce__slider.get());
     juce__slider->setRange (0, 1, 1);
@@ -155,10 +171,12 @@ MainUIComponent::MainUIComponent (EARMP_ChannelstripAudioProcessor& p)
     //[Constructor] You can add your own custom stuff here..
     KnobsAttachment[0].reset (new SliderAttachment (p.parameters, "HighPassFc", *HF_knob));
     KnobsAttachment[1].reset (new SliderAttachment (p.parameters, "LowPassFc", *LF_Knob));
+    KnobsAttachment[2].reset (new SliderAttachment (p.parameters, "PeakFreq", *PeakFreq_knob));
+    KnobsAttachment[3].reset (new SliderAttachment (p.parameters, "PeakGain", *PeakGain_knob));
     buttonsAttachment[0].reset(new ButtonAttachment(p.parameters,"Eq_switch", *juce__imageButton));
     
     //step 4 for paremeter table tree S/R
-    KnobsAttachment[2].reset (new SliderAttachment(p.parameters,"Level_control",*Main_slider));
+    KnobsAttachment[4].reset (new SliderAttachment(p.parameters,"Level_control",*Main_slider));
     // p.set_parameters();
     startTimerHz (20);
     //[/Constructor]
@@ -178,6 +196,8 @@ MainUIComponent::~MainUIComponent()
     Main_slider = nullptr;
     HF_knob = nullptr;
     LF_Knob = nullptr;
+    PeakFreq_knob = nullptr;
+    PeakGain_knob = nullptr;
     juce__slider = nullptr;
     juce__imageButton = nullptr;
     Load_button = nullptr;
@@ -238,6 +258,14 @@ void MainUIComponent::sliderValueChanged (juce::Slider* sliderThatWasMoved)
         //[UserSliderCode_LF_Knob] -- add your slider handling code here..
         audioProcessor.control_LowPassfilter(LF_Knob->getValue());
         //[/UserSliderCode_LF_Knob]
+    }
+    else if (sliderThatWasMoved == PeakFreq_knob.get())
+    {
+        audioProcessor.control_PeakEq(PeakFreq_knob->getValue(), PeakGain_knob->getValue());
+    }
+    else if (sliderThatWasMoved == PeakGain_knob.get())
+    {
+        audioProcessor.control_PeakEq(PeakFreq_knob->getValue(), PeakGain_knob->getValue());
     }
     else if (sliderThatWasMoved == juce__slider.get())
     {

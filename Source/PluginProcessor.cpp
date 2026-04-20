@@ -33,6 +33,16 @@ EARMP_ChannelstripAudioProcessor::EARMP_ChannelstripAudioProcessor()
                                                  2500.0f,   // minimum value
                                                       18000.0f,   // maximum value
                                                       5000.0f) ,
+    std::make_unique<juce::AudioParameterFloat> (ParameterID { "PeakFreq", 1 },
+                                                 "PeakFreq",
+                                                 75.0f,
+                                                 1000.0f,
+                                                 500.0f),
+    std::make_unique<juce::AudioParameterFloat> (ParameterID { "PeakGain", 1 },
+                                                 "PeakGain",
+                                                 -12.0f,
+                                                 12.0f,
+                                                 0.0f),
         std::make_unique<juce::AudioParameterInt> (ParameterID { "Eq_switch",  1 },      // parameterID
                                                    "Eq_switch",     // parameter name
                                                    0,
@@ -46,6 +56,8 @@ EARMP_ChannelstripAudioProcessor::EARMP_ChannelstripAudioProcessor()
     high_fc_store = parameters.getRawParameterValue ("HighPassFc");
  //   tubeon2 =parameters.getRawParameterValue("Clean_sw");
     low_fc_store = parameters.getRawParameterValue("LowPassFc");
+    peak_fc_store = parameters.getRawParameterValue("PeakFreq");
+    peak_gain_store = parameters.getRawParameterValue("PeakGain");
     EqSW_store = parameters.getRawParameterValue("Eq_switch");
     
     //step 3 for paremeter table tree S/R
@@ -56,18 +68,9 @@ EARMP_ChannelstripAudioProcessor::EARMP_ChannelstripAudioProcessor()
 
 EARMP_ChannelstripAudioProcessor::~EARMP_ChannelstripAudioProcessor()
 {
-    //delete HighPass; //Step 5.1: delete ptr
-    //delete LowPass;  //Step 5.2: delete ptr
-
-    if (LowPass != nullptr)
-    {
-        LowPass = nullptr;
-    }
-    if (HighPass != nullptr)
-    {
-        HighPass = nullptr;
-    }
-
+    LowPass.reset();
+    HighPass.reset();
+    PeakEq.reset();
     audioTransportSource.setSource (nullptr);
 }
 
@@ -141,16 +144,18 @@ void EARMP_ChannelstripAudioProcessor::prepareToPlay (double sampleRate, int sam
     
     sampleRate_=sampleRate;
     
-    if(LowPass !=nullptr)
-    { LowPass=nullptr;}
-    if(HighPass !=nullptr)
-    { HighPass=nullptr;}
-    
-    HighPass = new EARMP_Eq;   //Call class ptr
+    HighPass = std::make_unique<EARMP_Eq>();
     HighPass->highpass_setup(high_fc.getCurrentValue(), sampleRate, HighPass->a, HighPass->b); //call setup for high pass filter
     
-    LowPass = new EARMP_Eq;
+    LowPass = std::make_unique<EARMP_Eq>();
     LowPass->lowpass_setup(low_fc.getCurrentValue(), sampleRate, LowPass->a, LowPass->b); //call setup for high pass filter
+    
+    PeakEq = std::make_unique<EARMP_Eq>();
+    PeakEq->peaking_setup(peak_fc.getCurrentValue(), sampleRate, peak_gain.getCurrentValue(), 0.7, PeakEq->a, PeakEq->b);
+
+    HighPass->resetState();
+    LowPass->resetState();
+    PeakEq->resetState();
 
     {
         const juce::ScopedLock sl (audioTransportLock);
@@ -238,6 +243,23 @@ void EARMP_ChannelstripAudioProcessor::processBlock (juce::AudioBuffer<float>& b
     const auto eqEnabled = EqSW_store != nullptr ? (EqSW_store->load() > 0.5f) : EqSwitch;
     EqSwitch = eqEnabled;
 
+    if (high_fc_store != nullptr && low_fc_store != nullptr && peak_fc_store != nullptr && peak_gain_store != nullptr)
+    {
+        const auto hp = static_cast<double>(high_fc_store->load());
+        const auto lp = static_cast<double>(low_fc_store->load());
+        const auto peakFreq = static_cast<double>(peak_fc_store->load());
+        const auto peakGain = static_cast<double>(peak_gain_store->load());
+
+        if (hp != high_fc.getTargetValue())
+            control_HighPassfilter(hp);
+
+        if (lp != low_fc.getTargetValue())
+            control_LowPassfilter(lp);
+
+        if (peakFreq != peak_fc.getTargetValue() || peakGain != peak_gain.getTargetValue())
+            control_PeakEq(peakFreq, peakGain);
+    }
+
     const auto channelsToProcess = isUsingLoadedAudio ? totalNumOutputChannels : totalNumInputChannels;
 
     for (int channel = 0; channel < channelsToProcess; ++channel)
@@ -251,8 +273,9 @@ void EARMP_ChannelstripAudioProcessor::processBlock (juce::AudioBuffer<float>& b
             
             x=inputdata[samples];
 //            DBG("before X:"<<x);
-            if (eqEnabled && HighPass != nullptr && LowPass != nullptr) {
+            if (eqEnabled && HighPass != nullptr && PeakEq != nullptr && LowPass != nullptr) {
                 x = HighPass->filterProcess(x, HighPass->a, HighPass->b, HighPass->xbuf[channel], HighPass->ybuf[channel]);
+                x = PeakEq->filterProcess(x, PeakEq->a, PeakEq->b, PeakEq->xbuf[channel], PeakEq->ybuf[channel]);
                 x = LowPass->filterProcess(x, LowPass->a, LowPass->b, LowPass->xbuf[channel], LowPass->ybuf[channel]); //Processing High Pass filter
             }
             outputdata[samples]=(float) (x *masterVol.getNextValue()) ;   //Read samples in each Buffer

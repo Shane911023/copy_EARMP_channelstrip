@@ -15,6 +15,7 @@
 
 #include <JuceHeader.h>
 #include "EARMP_Eq.h"    // Step1: call Eq function
+#include <memory>
 
 //==============================================================================
 /**
@@ -75,14 +76,10 @@ public:
     void control_LowPassfilter(double fc)  //Step 7:UI control link function
     {
         low_fc = fc;
-        if(LowPass !=nullptr)
+        if (LowPass != nullptr)
         {
-            LowPass = new EARMP_Eq;
             LowPass->lowpass_setup(low_fc.getNextValue(), sampleRate_, LowPass->a, LowPass->b); //call setup for high pass filter
-            
         }
-        else
-            LowPass->lowpass_setup(low_fc.getNextValue(), sampleRate_, LowPass->a, LowPass->b); //call setup for high pass filter
 #if myBugMessage
         DBG("Detected LowPass Knob");
         DBG("Sampling Rate: "<<sampleRate_);
@@ -93,21 +90,25 @@ public:
     void control_HighPassfilter(double fc) //Step 7:UI control link function
     {
         high_fc = fc;
-        if(HighPass !=nullptr)
+        if (HighPass != nullptr)
         {
-            HighPass = new EARMP_Eq;
             HighPass->highpass_setup(high_fc.getNextValue(), sampleRate_, HighPass->a, HighPass->b); //call setup for high pass filter
-            
         }
-        else
-            HighPass->highpass_setup(high_fc.getNextValue(), sampleRate_, HighPass->a, HighPass->b); //call setup for high pass filter
-        
+
 #if myBugMessage
         DBG("Detected HighPass Knob");
         DBG("Sampling Rate: "<<sampleRate_);
         DBG("High a: "<< HighPass->a[0]<<", "<<HighPass->a[1]<<", "<<HighPass->a[2]);
         DBG("High b: "<< HighPass->b[0]<<", "<<HighPass->b[1]);
 #endif
+    }
+
+    void control_PeakEq(double fc, double gainDb)
+    {
+        peak_fc = fc;
+        peak_gain = gainDb;
+        if (PeakEq != nullptr)
+            PeakEq->peaking_setup(peak_fc.getNextValue(), sampleRate_, peak_gain.getNextValue(), 0.7, PeakEq->a, PeakEq->b);
     }
     
     double dBscale(double x)
@@ -128,18 +129,26 @@ public:
     {
         low_fc = (double)*low_fc_store;
         high_fc =(double) *high_fc_store;
+        peak_fc = (double)*peak_fc_store;
+        peak_gain = (double)*peak_gain_store;
         EqSwitch=(bool) *EqSW_store;
     }
 private:
     
     std::atomic<float>* low_fc_store =nullptr;
     std::atomic<float>* high_fc_store =nullptr;
+    std::atomic<float>* peak_fc_store =nullptr;
+    std::atomic<float>* peak_gain_store =nullptr;
     std::atomic<float>* EqSW_store =nullptr;
     std::atomic<float>* level_ctrl =nullptr; //step 1 for paremeter table tree S/R
     
-    EARMP_Eq *LowPass, *HighPass;   //Step 3: define a instancePtr function class indicate to Eq class
+    std::unique_ptr<EARMP_Eq> LowPass;
+    std::unique_ptr<EARMP_Eq> HighPass;
+    std::unique_ptr<EARMP_Eq> PeakEq;
     juce::LinearSmoothedValue<double> low_fc {8000};
     juce::LinearSmoothedValue<double> high_fc {200};
+    juce::LinearSmoothedValue<double> peak_fc {500};
+    juce::LinearSmoothedValue<double> peak_gain {0};
     double sampleRate_=44100;
 
     juce::AudioFormatManager audioFormatManager;

@@ -82,12 +82,6 @@ void EARMP_Eq::highpass_setup(double fc, double fs, double a[3], double b[2])
   a[2] = 0.0;
   b[0] = -theta;
   b[1] = 0.0;
-    for(int i=0;i<2;i++){
-        for(int j=0;j<2;j++){
-            xbuf[i][j]=0;
-            ybuf[i][j]=0;
-        }
-    }
 }
 
 //
@@ -109,11 +103,36 @@ void EARMP_Eq::lowpass_setup(double fc, double fs, double a[3], double b[2])
   a[2] = 0.0;
   b[0] = -theta;
   b[1] = 0.0;
-    
-    for(int i=0;i<2;i++){
-        for(int j=0;j<2;j++){
-            xbuf[i][j]=0;
-            ybuf[i][j]=0;
+}
+
+void EARMP_Eq::peaking_setup(double fc, double fs, double gainDb, double q, double a[3], double b[2])
+{
+  const auto aLinear = std::pow(10.0, gainDb / 40.0);
+  const auto w0 = 2.0 * juce::MathConstants<double>::pi * fc / fs;
+  const auto alpha = std::sin(w0) / (2.0 * q);
+
+  const auto b0 = 1.0 + alpha * aLinear;
+  const auto b1 = -2.0 * std::cos(w0);
+  const auto b2 = 1.0 - alpha * aLinear;
+  const auto a0 = 1.0 + alpha / aLinear;
+  const auto a1 = -2.0 * std::cos(w0);
+  const auto a2 = 1.0 - alpha / aLinear;
+
+  a[0] = b0 / a0;
+  a[1] = b1 / a0;
+  a[2] = b2 / a0;
+  b[0] = a1 / a0;
+  b[1] = a2 / a0;
+}
+
+void EARMP_Eq::resetState()
+{
+    for (int i = 0; i < 2; ++i)
+    {
+        for (int j = 0; j < 2; ++j)
+        {
+            xbuf[i][j] = 0.0;
+            ybuf[i][j] = 0.0;
         }
     }
 }

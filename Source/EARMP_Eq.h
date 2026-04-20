@@ -25,6 +25,8 @@ public:
                        double xbuf[2], double ybuf[2]);
   void highpass_setup(double fc, double fs, double a[3], double b[2]);
   void lowpass_setup(double fc, double fs, double a[3], double b[2]);
+  void peaking_setup(double fc, double fs, double gainDb, double q, double a[3], double b[2]);
+  void resetState();
     
     double a[3], b[2];
     double xbuf[2][2], ybuf[2][2];  // Step2: define the variable for Eq function
