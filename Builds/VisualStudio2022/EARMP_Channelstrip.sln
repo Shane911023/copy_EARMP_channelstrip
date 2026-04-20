@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio Version 17
+
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EARMP_Channelstrip - Standalone Plugin", "EARMP_Channelstrip_StandalonePlugin.vcxproj", "{4022BBA0-D35B-1E5E-3691-233B520B931E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9D038915-7C4C-8CB5-304E-8A817E601F0C} = {9D038915-7C4C-8CB5-304E-8A817E601F0C}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EARMP_Channelstrip - VST3", "EARMP_Channelstrip_VST3.vcxproj", "{AAB6F9BC-CB5E-4130-868A-FD1367AF5E35}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9D038915-7C4C-8CB5-304E-8A817E601F0C} = {9D038915-7C4C-8CB5-304E-8A817E601F0C}
+		{626015DF-F693-8018-E0CF-04B976F7257B} = {626015DF-F693-8018-E0CF-04B976F7257B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EARMP_Channelstrip - Shared Code", "EARMP_Channelstrip_SharedCode.vcxproj", "{9D038915-7C4C-8CB5-304E-8A817E601F0C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EARMP_Channelstrip - VST3 Manifest Helper", "EARMP_Channelstrip_VST3ManifestHelper.vcxproj", "{626015DF-F693-8018-E0CF-04B976F7257B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AAB6F9BC-CB5E-4130-868A-FD1367AF5E35}.Debug|x64.ActiveCfg = Debug|x64
+		{AAB6F9BC-CB5E-4130-868A-FD1367AF5E35}.Debug|x64.Build.0 = Debug|x64
+		{AAB6F9BC-CB5E-4130-868A-FD1367AF5E35}.Release|x64.ActiveCfg = Release|x64
+		{AAB6F9BC-CB5E-4130-868A-FD1367AF5E35}.Release|x64.Build.0 = Release|x64
+		{4022BBA0-D35B-1E5E-3691-233B520B931E}.Debug|x64.ActiveCfg = Debug|x64
+		{4022BBA0-D35B-1E5E-3691-233B520B931E}.Debug|x64.Build.0 = Debug|x64
+		{4022BBA0-D35B-1E5E-3691-233B520B931E}.Release|x64.ActiveCfg = Release|x64
+		{4022BBA0-D35B-1E5E-3691-233B520B931E}.Release|x64.Build.0 = Release|x64
+		{9D038915-7C4C-8CB5-304E-8A817E601F0C}.Debug|x64.ActiveCfg = Debug|x64
+		{9D038915-7C4C-8CB5-304E-8A817E601F0C}.Debug|x64.Build.0 = Debug|x64
+		{9D038915-7C4C-8CB5-304E-8A817E601F0C}.Release|x64.ActiveCfg = Release|x64
+		{9D038915-7C4C-8CB5-304E-8A817E601F0C}.Release|x64.Build.0 = Release|x64
+		{626015DF-F693-8018-E0CF-04B976F7257B}.Debug|x64.ActiveCfg = Debug|x64
+		{626015DF-F693-8018-E0CF-04B976F7257B}.Debug|x64.Build.0 = Debug|x64
+		{626015DF-F693-8018-E0CF-04B976F7257B}.Release|x64.ActiveCfg = Release|x64
+		{626015DF-F693-8018-E0CF-04B976F7257B}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

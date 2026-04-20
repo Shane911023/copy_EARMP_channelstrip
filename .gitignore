@@ -1,0 +1,49 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Visual Studio user/cache files
+.vs/
+*.VC.db
+*.VC.VC.opendb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build intermediates / outputs
+Builds/**/x64/
+Builds/**/Win32/
+Builds/**/Debug/
+Builds/**/Release/
+Builds/**/ipch/
+Builds/**/obj/
+Builds/**/bin/
+Builds/**/packages/
+Builds/**/TestResults/
+Builds/**/*.tlog/
+
+# C/C++ generated files
+*.obj
+*.o
+*.pch
+*.pdb
+*.ilk
+*.idb
+*.iobj
+*.ipdb
+*.exp
+*.lib
+*.dll
+*.exe
+
+# JUCE plugin binaries
+*.vst3
+*.component
+*.aaxplugin
+
+# External JUCE modules symlink/junction
+modules/
+
